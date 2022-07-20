@@ -1,0 +1,55 @@
+[project]
+name = "sphinx-gooey"
+version = "0.1.0"
+description = "Produces a gallery of examples for Sphinx documentation. Totally language agnostic, include examples in any programming language in your documentation."
+authors = [
+    {name = "Bryan Weber", email = "bryan.w.weber@gmail.com"},
+]
+dependencies = [
+    "sphinx-design>=0.2.0",
+    "myst-parser>=0.18.0",
+]
+requires-python = ">=3.9"
+readme = "README.md"
+license = {text = "BSD-3-Clause"}
+[project.optional-dependencies]
+notebook = ["myst-nb>=0.16.0"]
+
+[tool.pdm.scripts]
+doc = {cmd = [
+  "sphinx-build",
+  "-b",
+  "html",
+  "-W",
+  "--keep-going",
+  "doc",
+  "doc/_build/html",
+  "-a",
+]}
+livedoc = {cmd = [
+  "sphinx-autobuild",
+  "doc",
+  "doc/_build/html",
+  "--ignore",
+  "*examples*",
+  "--watch",
+  "src",
+  "--port",
+  "0",
+  "--open-browser",
+]}
+
+
+[tool.pdm.dev-dependencies]
+doc = [
+    "sphinx>=5.0.2",
+    "sphinx-autobuild>=2021.3.14",
+    "myst-parser>=0.18.0",
+    "sphinx-design>=0.2.0",
+    "pydata-sphinx-theme>=0.9.0",
+    "myst-nb>=0.16.0",
+]
+
+[build-system]
+requires = ["pdm-pep517>=0.12.0"]
+build-backend = "pdm.pep517.api"
