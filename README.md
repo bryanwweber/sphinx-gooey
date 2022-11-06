@@ -32,8 +32,12 @@ a format that can be created from a Notebook file using `nbconvert`.
 ## Installation
 
 Don't do it. If you must, `pip install -e .` from the source folder should
-work. You might need to install [`pdm`](https://pdm.fming.dev/2.0/).
+work. You might need to install [`pdm`](https://pdm.fming.dev/2.2/).
 
 ## Usage
 
 Don't do it. See the `doc` folder if you must.
+
+## Dev Setup
+
+Run `pdm install` from the root directory to install using the active Python virtualenv.
