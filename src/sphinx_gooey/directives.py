@@ -1,6 +1,5 @@
-from contextlib import contextmanager
 from textwrap import dedent
-from typing import TYPE_CHECKING, Generator, cast
+from typing import TYPE_CHECKING, cast
 from docutils.nodes import Node
 from docutils import nodes
 from docutils.utils import new_document
@@ -35,23 +34,9 @@ ONE_CARD = dedent(
 
 
 class ExampleGallery(SphinxDirective):
-    """Given an example language and a path, generate MyST markdown for the index page
-    and each example page. Each example page should have the code formatted with
+    """Given an example language, generate MyST markdown for the index page
+    and each example page. Each example page has the code formatted with
     Pygments, plus a download link for the actual file itself.
-
-    Need to decide between two ways to go forward:
-
-    1. Write the reST/MyST for the grid markup and use ``self.state.nested_parse`` to
-       generate the docutils nodes
-    2. Instantiate the GridDirective/GridCardItemDirective classes and run their
-       ``run()`` methods. The tricky bit here is that the ``GridDirective`` requires
-       content to be present in the directive, and I'm not sure how to fake that, or
-       even if it makes sense to fake that. For example, the benefit of using markup
-       is that the line numbers can be maintained for error output. Another advantage
-       is that it's less dependent on the specific code structure in sphinx-design.
-       The advantage is that I don't have to write Python string reST markup (blech).
-    3. Use ``create_component`` and apply the same style classses as ``sphinx-design``
-       uses. Also fragile but maybe less so because it only depends on Bootstrap
     """
 
     required_arguments = 1
@@ -115,23 +100,6 @@ class ExampleGallery(SphinxDirective):
         return node.children
 
 
-@contextmanager
-def switch_source_input(state, parser, content) -> Generator[None, None, None]:
-    from myst_parser.mocking import MockStateMachine
-
-    try:
-        get_source_and_line = state.memo.reporter.get_source_and_line
-        state_machine = MockStateMachine(
-            renderer=state.document.attributes["nb_renderer"], lineno=0
-        )
-        state_machine.input_lines = content
-        state.memo.reporter.get_source_and_line = state_machine.get_source_and_line
-
-        yield
-    finally:
-        state.memo.reporter.get_source_and_line = get_source_and_line  # type: ignore
-
-
 class JupyterExample(SphinxDirective):
     required_arguments = 1
     option_spec = {
@@ -140,8 +108,6 @@ class JupyterExample(SphinxDirective):
     }
 
     def run(self) -> list[Node]:
-        # Import here to avoid a hard dependency on nbformat
-        import nbformat as nbf
 
         doc = new_document("", self.state.document.settings)
         # Two-element tuple, the first is the file relative to the srcdir, the second
