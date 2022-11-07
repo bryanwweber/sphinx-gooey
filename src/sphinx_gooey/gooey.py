@@ -47,11 +47,11 @@ class Example:
 def generate_example_md(app: Sphinx):
     """
     The extension configuration needs to list the source files folder and file
-    extensions. This function will generate ``<filename>.rst`` files for each example
+    extensions. This function will generate ``<filename>.md`` files for each example
     file that is found in a recursive search of the source folder. This may use a
     custom template for each example.
 
-    To use the extension, the user creates an ``index.rst`` file that uses the
+    To use the extension, the user creates an ``index.md`` file that uses the
     ``examples-gallery`` directive somewhere in the file. That directive takes one
     required argument, which is a ``name`` of the set of examples. The ``name`` must be
     configured in the ``conf.py`` file along with the source folder and file
@@ -59,9 +59,10 @@ def generate_example_md(app: Sphinx):
 
     The usage would look like:
 
-    .. code-block:: rst
+    .. code-block:: markdown
 
-       .. example-gallery:: python
+       :::{example-gallery} python
+       :::
 
     The directive is replaced by a set of cards linking to the rendered source code of
     the example and each card contains the description of the example. The gallery is
@@ -82,7 +83,6 @@ def generate_example_md(app: Sphinx):
                 app.config.exclude_patterns.append(str(pth.with_suffix("")))
             example = Example(ff, source_folder)
             examples.append(example)
-            # md_file = ff.with_stem(ff.stem + "_template").with_suffix(".md")
             md_file = ff.with_suffix(".md")
             md_file.write_text(
                 dedent(
@@ -154,26 +154,11 @@ def generate_example_md(app: Sphinx):
         app.config.sphinx_gooey_conf[name]["examples"] = examples
 
 
-def remove_example_files(app: Sphinx, env, docnames: list[str]) -> None:
-    for values in env.config.sphinx_gooey_conf.values():
-        for example in values.get("examples", []):
-            ex = str(example.path.relative_to(app.srcdir).with_suffix(""))
-            if ex in docnames and example.name.endswith("ipynb"):
-                docnames.remove(ex)
-                env.config.exclude_patterns.append(ex)
-                logger.info("Removed %s from processing because it is an example", ex)
-
-
 def add_examples_to_ignore(app: Sphinx, config):
-    # if not config.nb_execution_excludepatterns:
-    #     config.nb_execution_excludepatterns = []
     for values in config.sphinx_gooey_conf.values():
         pth = (Path(app.srcdir) / values["source"]).relative_to(app.srcdir)
         for ext in values["file_ext"]:
-            config.exclude_patterns.append(str(pth / ext))
             config.exclude_patterns.append(str(pth / "**" / ext))
-            # config.nb_execution_excludepatterns.append(str(pth / ext))
-            # config.nb_execution_excludepatterns.append(str(pth / "**" / ext))
 
 
 def add_nb_custom_format(app: Sphinx, config):
@@ -196,7 +181,6 @@ def setup(app: Sphinx):
     app.setup_extension("sphinx_design")
 
     app.connect("builder-inited", generate_example_md)
-    # app.connect("env-before-read-docs", remove_example_files)
     app.connect("config-inited", add_examples_to_ignore)
     app.connect("config-inited", add_nb_custom_format)
     logger.info("Set up sphinx_gooey!")
