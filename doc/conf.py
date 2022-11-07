@@ -46,7 +46,7 @@ myst_enable_extensions = [
 ]
 
 sphinx_gooey_conf = {
-    "python": {"source": "examples", "file_ext": ["*.py"]},
+    "python": {"source": "examples/python", "file_ext": ["*.py"]},
     "jupyter": {"source": "examples/jupyter", "file_ext": ["*.ipynb"]},
 }
 
