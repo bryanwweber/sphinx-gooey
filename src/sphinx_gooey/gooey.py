@@ -7,7 +7,9 @@ from sphinx.util.logging import getLogger
 from sphinx.application import Sphinx
 from sphinx.errors import ExtensionError
 
-from .directives import ExampleGallery, JupyterExample
+from .directives import ExampleGallery
+from .jupyter_directives import JupyterExample
+
 
 logger = getLogger(__name__)
 HERE = Path(__file__).parent
