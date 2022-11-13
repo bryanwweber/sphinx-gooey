@@ -102,10 +102,6 @@ class ExampleGallery(SphinxDirective):
 
 class JupyterExample(SphinxDirective):
     required_arguments = 1
-    option_spec = {
-        "nb_execution_mode": directives.unchanged,
-        "embed_stylesheet": directives.unchanged,
-    }
 
     def run(self) -> list[Node]:
 

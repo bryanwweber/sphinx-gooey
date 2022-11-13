@@ -94,10 +94,6 @@ def generate_example_md(app: Sphinx):
                     # {example.name}
 
                     :::{{jupyter-example}} {ff.name}
-                    ---
-                    nb_execution_mode: off
-                    embed_stylesheet: False
-                    ---
                     :::
                     """
                 )
@@ -154,19 +150,6 @@ def generate_example_md(app: Sphinx):
         app.config.sphinx_gooey_conf[name]["examples"] = examples
 
 
-def add_examples_to_ignore(app: Sphinx, config):
-    for values in config.sphinx_gooey_conf.values():
-        pth = (Path(app.srcdir) / values["source"]).relative_to(app.srcdir)
-        for ext in values["file_ext"]:
-            config.exclude_patterns.append(str(pth / "**" / ext))
-
-
-def add_nb_custom_format(app: Sphinx, config):
-    config.nb_custom_formats = {
-        ".ipynb.md": ("sphinx_gooey.readers.example_reader", {}, False)
-    }
-
-
 def setup(app: Sphinx):
     """Install the extension into the Sphinx ``app``."""
 
@@ -181,6 +164,4 @@ def setup(app: Sphinx):
     app.setup_extension("sphinx_design")
 
     app.connect("builder-inited", generate_example_md)
-    app.connect("config-inited", add_examples_to_ignore)
-    app.connect("config-inited", add_nb_custom_format)
     logger.info("Set up sphinx_gooey!")
