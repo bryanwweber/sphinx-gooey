@@ -142,7 +142,14 @@ class JupyterExample(SphinxDirective):
             pth = app.project.doc2path(docname, *args, **kwargs)  # type: ignore
             return pth.removesuffix(".md")
 
+        import nbformat as nbf
+
+        document = nbf.reads(abs_ipynb.read_text(), nbf.current_nbformat)
+        if document.metadata.get("mystnb", False):
+            document.metadata.mystnb.update(execution_mode="off")
+        else:
+            document.metadata.update(mystnb={"execution_mode": "off"})
         parser.env.temp_data["docname"] = str(rel_ipynb)
         parser.env.doc2path = doc2path
-        parser.parse(abs_ipynb.read_text(), doc)
+        parser.parse(nbf.writes(document), doc)
         return doc.children
