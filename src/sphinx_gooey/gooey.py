@@ -5,14 +5,20 @@ from textwrap import dedent
 
 from sphinx.util.logging import getLogger
 from sphinx.application import Sphinx
-from sphinx.errors import ExtensionError
 
 from .directives import ExampleGallery
-from .jupyter_directives import JupyterExample
 
+try:
+    import myst_nb  # noqa: F401
+
+    HAS_MYST_NB = True
+except ImportError:
+    HAS_MYST_NB = False
+
+if HAS_MYST_NB:
+    from .jupyter_directives import JupyterExample
 
 logger = getLogger(__name__)
-HERE = Path(__file__).parent
 
 
 @dataclass
@@ -142,6 +148,11 @@ def generate_example_md(app: Sphinx, config):
         examples = []
         for ext in values["file_ext"]:
             if "ipynb" in ext:
+                if not HAS_MYST_NB:
+                    logger.error(
+                        "The MystNB extension is not available, so we cannot parse "
+                        "Jupyter Notebook examples"
+                    )
                 examples.extend(jupyter(ext, app))
             else:
                 examples.extend(generic(ext))
@@ -157,10 +168,10 @@ def setup(app: Sphinx):
 
     app.add_config_value("sphinx_gooey_conf", {}, "html")
     app.add_directive("example-gallery", ExampleGallery)
-    app.add_directive("jupyter-example", JupyterExample)
-    try:
+    if HAS_MYST_NB:
         app.setup_extension("myst_nb")
-    except ExtensionError:
+        app.add_directive("jupyter-example", JupyterExample)
+    else:
         app.setup_extension("myst_parser")
 
     app.setup_extension("sphinx_design")
