@@ -44,7 +44,7 @@ class Example:
         self.summary = doc
 
 
-def generate_example_md(app: Sphinx):
+def generate_example_md(app: Sphinx, config):
     """
     The extension configuration needs to list the source files folder and file
     extensions. This function will generate ``<filename>.md`` files for each example
@@ -80,7 +80,7 @@ def generate_example_md(app: Sphinx):
                 )
                 continue
             else:
-                app.config.exclude_patterns.append(str(pth.with_suffix("")))
+                app.config.exclude_patterns.append(str(pth))
             example = Example(ff, source_folder)
             examples.append(example)
             md_file = ff.with_suffix(".md")
@@ -163,5 +163,5 @@ def setup(app: Sphinx):
 
     app.setup_extension("sphinx_design")
 
-    app.connect("builder-inited", generate_example_md)
+    app.connect("config-inited", generate_example_md)
     logger.info("Set up sphinx_gooey!")
