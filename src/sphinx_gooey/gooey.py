@@ -1,10 +1,10 @@
-from pathlib import Path
-from dataclasses import dataclass
 import ast
+from dataclasses import dataclass
+from pathlib import Path
 from textwrap import dedent
 
-from sphinx.util.logging import getLogger
 from sphinx.application import Sphinx
+from sphinx.util.logging import getLogger
 
 from .directives import ExampleGallery
 

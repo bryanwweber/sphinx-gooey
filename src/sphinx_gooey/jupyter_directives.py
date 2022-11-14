@@ -1,15 +1,14 @@
+from copy import deepcopy
+from pathlib import Path
 from typing import cast
+
+from docutils import nodes
+from docutils.nodes import Node
 from docutils.utils import new_document
+from myst_nb.sphinx_ import Parser as MystParser
 from sphinx import addnodes
 from sphinx.util.docutils import SphinxDirective
-
-from docutils.nodes import Node
-from docutils import nodes
-from pathlib import Path
-from copy import deepcopy
 from sphinx.util.logging import getLogger
-from myst_nb.sphinx_ import Parser as MystParser
-
 
 logger = getLogger(__name__)
 
