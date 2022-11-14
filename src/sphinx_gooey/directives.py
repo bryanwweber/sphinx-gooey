@@ -1,12 +1,11 @@
-from textwrap import dedent
-from docutils.nodes import Node
-from docutils import nodes
-from sphinx.util.docutils import SphinxDirective
-from sphinx.util.nodes import explicit_title_re, nested_parse_with_titles
 from collections import defaultdict
+from textwrap import dedent
 
+from docutils import nodes
+from docutils.nodes import Node
+from sphinx.util.docutils import SphinxDirective
 from sphinx.util.logging import getLogger
-
+from sphinx.util.nodes import explicit_title_re, nested_parse_with_titles
 
 logger = getLogger(__name__)
 
@@ -62,7 +61,8 @@ class ExampleGallery(SphinxDirective):
         unknown_category = set(categories.keys()) - set(self.examples.keys())
         if unknown_category:
             raise self.error(
-                f"Unknown example category: '{list(categories.keys())}'; '{list(self.examples.keys())}'"
+                f"Unknown example category: {list(categories.keys())!r}; "
+                f"{list(self.examples.keys())!r}"
             )
 
         category_block = "::::{{grid}} 3\n{content}\n::::"
@@ -70,7 +70,7 @@ class ExampleGallery(SphinxDirective):
         for category, title in categories.items():
             block_text.append(f"## {title}")
             examples = self.examples[category]
-            content = "\n".join(
+            block_content = "\n".join(
                 [
                     ONE_CARD.format(
                         name=example.name,
@@ -80,7 +80,7 @@ class ExampleGallery(SphinxDirective):
                     for example in examples
                 ]
             )
-            block_text.extend(category_block.format(content=content).splitlines())
+            block_text.extend(category_block.format(content=block_content).splitlines())
 
         # Empty node so we can return its children, which are added by the nested_parse
         # method.
