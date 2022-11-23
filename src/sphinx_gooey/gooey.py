@@ -1,22 +1,14 @@
 import ast
 from dataclasses import dataclass
+from importlib.metadata import entry_points
 from pathlib import Path
 from textwrap import dedent
 
 from sphinx.application import Sphinx
+from sphinx.errors import ExtensionError
 from sphinx.util.logging import getLogger
 
 from .directives import ExampleGallery
-
-try:
-    import myst_nb  # noqa: F401
-
-    HAS_MYST_NB = True
-except ImportError:
-    HAS_MYST_NB = False
-
-if HAS_MYST_NB:
-    from .jupyter_directives import JupyterExample
 
 logger = getLogger(__name__)
 
@@ -77,40 +69,9 @@ def generate_example_md(app: Sphinx, config):
     automatically subdivided by subfolder in the source location.
     """
 
-    def jupyter(ext: str, app: Sphinx) -> list[Example]:
+    def generic(extension: str, app: Sphinx, source_folder: Path) -> list[Example]:
         examples = []
-        for ff in source_folder.rglob(ext):
-            pth = ff.relative_to(app.srcdir)
-            if " " in str(pth):
-                logger.warning(
-                    f"The example '{pth!s}' has a space in the "
-                    "pathname which is not yet supported."
-                )
-                continue
-            else:
-                app.config.exclude_patterns.append(str(pth))
-            example = Example(ff, source_folder)
-            examples.append(example)
-            md_file = ff.with_suffix(".md")
-            md_file.write_text(
-                dedent(
-                    f"""\
-                    ---
-                    orphan: true
-                    ---
-                    ({example.reference})=
-                    # {example.name}
-
-                    :::{{jupyter-example}} {ff.name}
-                    :::
-                    """
-                )
-            )
-        return examples
-
-    def generic(ext: str) -> list[Example]:
-        examples = []
-        for ff in source_folder.rglob(ext):
+        for ff in source_folder.rglob(extension):
             pth = ff.relative_to(app.srcdir)
             if " " in str(pth):
                 logger.warning(
@@ -139,6 +100,7 @@ def generate_example_md(app: Sphinx, config):
             )
         return examples
 
+    generators = app.config.sphinx_gooey_conf.pop("generators")
     for name, values in app.config.sphinx_gooey_conf.items():
         source_folder = Path(app.srcdir) / values["source"]
         if not source_folder.is_dir():
@@ -146,16 +108,15 @@ def generate_example_md(app: Sphinx, config):
                 f"Source folder for examples must exist: '{source_folder!s}'"
             )
         examples = []
-        for ext in values["file_ext"]:
-            if "ipynb" in ext:
-                if not HAS_MYST_NB:
-                    logger.error(
-                        "The MystNB extension is not available, so we cannot parse "
-                        "Jupyter Notebook examples"
-                    )
-                examples.extend(jupyter(ext, app))
+        for extension in values["file_ext"]:
+            if "ipynb" in extension:
+                from .jupyter import JupyterExampleDirective
+
+                app.add_directive("jupyter-example", JupyterExampleDirective)
+                jupyter = generators["jupyter"].load()
+                examples.extend(jupyter(extension, app, source_folder))
             else:
-                examples.extend(generic(ext))
+                examples.extend(generic(extension, app, source_folder))
         references = set(e.reference for e in examples)
         if len(references) != len(examples):
             logger.error("There are duplicate path names in the set of examples")
@@ -163,18 +124,24 @@ def generate_example_md(app: Sphinx, config):
         app.config.sphinx_gooey_conf[name]["examples"] = examples
 
 
+def load_generator_entry_points(app: Sphinx, config):
+    app.config.sphinx_gooey_conf["generators"] = entry_points(
+        group="sphinx_gooey.generators"
+    )
+
+
 def setup(app: Sphinx):
     """Install the extension into the Sphinx ``app``."""
 
     app.add_config_value("sphinx_gooey_conf", {}, "html")
     app.add_directive("example-gallery", ExampleGallery)
-    if HAS_MYST_NB:
-        app.setup_extension("myst_nb")
-        app.add_directive("jupyter-example", JupyterExample)
-    else:
-        app.setup_extension("myst_parser")
 
+    try:
+        app.setup_extension("myst_nb")
+    except ExtensionError:
+        app.setup_extension("myst_parser")
     app.setup_extension("sphinx_design")
 
-    app.connect("config-inited", generate_example_md)
+    app.connect("config-inited", generate_example_md, priority=502)
+    app.connect("config-inited", load_generator_entry_points, priority=501)
     logger.info("Set up sphinx_gooey!")
