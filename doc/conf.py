@@ -50,7 +50,7 @@ sphinx_gooey_conf = {
     "jupyter": {"source": "examples/jupyter", "file_ext": ["*.ipynb"]},
 }
 
-nb_execution_mode = "force"
+nb_execution_mode = "off"
 nb_execution_in_temp = False
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]

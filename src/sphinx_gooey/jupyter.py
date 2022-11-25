@@ -133,7 +133,7 @@ def md_generator(ext: str, app: Sphinx, source_folder: Path) -> list[JupyterExam
                 orphan: true
                 ---
                 ({example.reference})=
-                # {example.name}
+                # {example.path.name}
 
                 :::{{jupyter-example}} {ff.name}
                 :::
