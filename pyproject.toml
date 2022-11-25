@@ -19,6 +19,7 @@ notebook = [
 ]
 [project.entry-points."sphinx_gooey.generators"]
 jupyter = "sphinx_gooey.jupyter:md_generator"
+default = "sphinx_gooey.default:md_generator"
 
 [tool.pdm.scripts]
 doc = {cmd = [
