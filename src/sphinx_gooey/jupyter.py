@@ -62,7 +62,7 @@ class JupyterExampleDirective(SphinxDirective):
         parser = cast(MystParser, app.registry.create_source_parser(app, "myst-nb"))
         parser.env = deepcopy(parser.env)
 
-        def doc2path(docname: str, *args, **kwargs):
+        def doc2path(docname: str, *args: tuple, **kwargs: dict) -> str:
             """Remove the .md suffix from the doc2path return value. It gets added
             automatically by the environment, but since we want to execute the actual
             ipynb file on disk, we need to strip it off.
@@ -85,7 +85,7 @@ class JupyterExample:
     summary: str = ""
     category: str = ""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         has_subdir = len(self.path.relative_to(self.source_folder.parent).parts) > 2
         if has_subdir:
             self.reference = f"{self.path.parts[-2]}-{self.path.stem}"
@@ -122,7 +122,6 @@ def md_generator(ext: str, app: Sphinx, source_folder: Path) -> list[JupyterExam
                 "pathname which is not yet supported."
             )
             continue
-        app.config.exclude_patterns.append(str(pth))
         example = JupyterExample(ff, source_folder)
         examples.append(example)
         md_file = ff.with_suffix(".md")

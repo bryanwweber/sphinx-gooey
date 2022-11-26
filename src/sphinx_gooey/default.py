@@ -18,7 +18,7 @@ class Example:
     summary: str = ""
     category: str = ""
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self.name = self.path.name
         has_subdir = len(self.path.relative_to(self.source_folder.parent).parts) > 2
         if has_subdir:

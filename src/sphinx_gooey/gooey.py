@@ -2,7 +2,7 @@ from importlib.metadata import entry_points
 from pathlib import Path
 
 from sphinx.application import Sphinx
-from sphinx.config import Config
+from sphinx.config import Config as SphinxConfig
 from sphinx.errors import ExtensionError
 from sphinx.util.logging import getLogger
 
@@ -11,7 +11,7 @@ from .directives import ExampleGallery
 logger = getLogger(__name__)
 
 
-def generate_example_md(app: Sphinx, config: Config) -> None:
+def generate_example_md(app: Sphinx) -> None:
     """
     The extension configuration needs to list the source files folder and file
     extensions. This function will generate ``<filename>.md`` files for each example
@@ -36,7 +36,10 @@ def generate_example_md(app: Sphinx, config: Config) -> None:
     automatically subdivided by subfolder in the source location.
     """
 
-    generators = app.config.sphinx_gooey_conf.pop("generators")
+    # Ignore the complaint here that BuildEnvironment has no attribute
+    # sphinx_gooey_generators. We could define a type class just for this case but that
+    # seems like overkill.
+    generators = app.env.sphinx_gooey_generators  # type: ignore
     for name, values in app.config.sphinx_gooey_conf.items():
         source_folder = Path(app.srcdir) / values["source"]
         if not source_folder.is_dir():
@@ -61,13 +64,26 @@ def generate_example_md(app: Sphinx, config: Config) -> None:
         app.config.sphinx_gooey_conf[name]["examples"] = examples
 
 
-def load_generator_entry_points(app: Sphinx, config: Config):
-    app.config.sphinx_gooey_conf["generators"] = entry_points(
-        group="sphinx_gooey.generators"
-    )
+def ignore_example_files(app: Sphinx, config: SphinxConfig) -> None:
+    for name, values in app.config.sphinx_gooey_conf.items():
+        source_folder = Path(app.srcdir) / values["source"]
+        if not source_folder.is_dir():
+            raise ValueError(
+                f"Source folder for examples must exist: '{source_folder!s}'"
+            )
+        for extension in values["file_ext"]:
+            for ff in source_folder.rglob(extension):
+                app.config.exclude_patterns.append(str(ff.relative_to(app.srcdir)))
 
 
-def setup(app: Sphinx):
+def load_generator_entry_points(app: Sphinx) -> None:
+    # Ignore the complaint here that BuildEnvironment has no attribute
+    # sphinx_gooey_generators. We could define a type class just for this case but that
+    # seems like overkill.
+    app.env.sphinx_gooey_generators = entry_points(group="sphinx_gooey.generators")  # type: ignore # noqa: E501
+
+
+def setup(app: Sphinx) -> None:
     """Install the extension into the Sphinx ``app``."""
 
     app.add_config_value("sphinx_gooey_conf", {}, "html")
@@ -82,6 +98,13 @@ def setup(app: Sphinx):
         app.setup_extension("myst_parser")
     app.setup_extension("sphinx_design")
 
-    app.connect("config-inited", generate_example_md, priority=502)
-    app.connect("config-inited", load_generator_entry_points, priority=501)
+    # Ignoring the example files has to be done when config is initialized, doing this
+    # when the builder is initialized is already too late and we get the warning
+    app.connect("config-inited", ignore_example_files)
+    # The priority of loading the generators has to be lower than generating the
+    # Markdown so that loading is run first.
+    # These are done when the builder is initialized so that the environment is created
+    # and we can store the generators on the environment.
+    app.connect("builder-inited", load_generator_entry_points, priority=501)
+    app.connect("builder-inited", generate_example_md, priority=502)
     logger.info("Set up sphinx_gooey!")

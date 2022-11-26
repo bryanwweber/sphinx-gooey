@@ -69,3 +69,7 @@ build-backend = "pdm.pep517.api"
 
 [tool.isort]
 profile = "black"
+
+[tool.mypy]
+check_untyped_defs = true
+disallow_untyped_defs = true
