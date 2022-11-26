@@ -33,3 +33,6 @@ A new title <self>
 
 :::{example-gallery} jupyter
 :::
+
+:::{example-gallery} cxx
+:::

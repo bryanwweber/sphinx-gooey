@@ -59,7 +59,9 @@ def generate_example_md(app: Sphinx) -> None:
                 examples.extend(default(extension, app, source_folder))
         references = set(e.reference for e in examples)
         if len(references) != len(examples):
-            logger.error("There are duplicate path names in the set of examples")
+            logger.error(
+                "There are duplicate path names in the set of examples: %r", references
+            )
 
         app.config.sphinx_gooey_conf[name]["examples"] = examples
 

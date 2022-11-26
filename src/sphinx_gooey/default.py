@@ -29,6 +29,12 @@ class Example:
 
         self.reference = self.reference.replace("_", "-").replace(" ", "")
 
+
+@dataclass
+class PythonExample(Example):
+    def __post_init__(self) -> None:
+        super().__post_init__()
+
         mod = ast.parse(self.path.read_bytes())
         doc = ""
         for node in mod.body:
@@ -41,7 +47,7 @@ class Example:
 
 
 def md_generator(extension: str, app: Sphinx, source_folder: Path) -> list[Example]:
-    examples = []
+    examples: list[Example] = []
     for ff in source_folder.rglob(extension):
         pth = ff.relative_to(app.srcdir)
         if " " in str(pth):
@@ -50,7 +56,10 @@ def md_generator(extension: str, app: Sphinx, source_folder: Path) -> list[Examp
                 "pathname which is not yet supported."
             )
             continue
-        example = Example(ff, source_folder)
+        if ff.suffix == ".py":
+            example = PythonExample(ff, source_folder)
+        else:
+            example = Example(ff, source_folder)  # type: ignore
         examples.append(example)
         md_file = ff.with_suffix(".md")
         md_file.write_text(

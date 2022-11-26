@@ -48,6 +48,7 @@ myst_enable_extensions = [
 sphinx_gooey_conf = {
     "python": {"source": "examples/python", "file_ext": ["*.py"]},
     "jupyter": {"source": "examples/jupyter", "file_ext": ["*.ipynb"]},
+    "cxx": {"source": "examples/cxx", "file_ext": ["*.h", "*.cpp"]},
 }
 
 nb_execution_mode = "off"
