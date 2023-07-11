@@ -18,8 +18,9 @@ notebook = [
     "nbformat>=5.7.0",
 ]
 [project.entry-points."sphinx_gooey.generators"]
-jupyter = "sphinx_gooey.jupyter:md_generator"
 default = "sphinx_gooey.default:md_generator"
+jupyter = "sphinx_gooey.jupyter:md_generator"
+python = "sphinx_gooey.default:md_generator"
 
 [tool.pdm.scripts]
 doc = {cmd = [

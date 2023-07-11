@@ -54,6 +54,9 @@ def generate_example_md(app: Sphinx) -> None:
                 app.add_directive("jupyter-example", JupyterExampleDirective)
                 jupyter = generators["jupyter"].load()
                 examples.extend(jupyter(extension, app, source_folder))
+            elif "py" in extension:
+                python = generators["python"].load()
+                examples.extend(python(extension, app, source_folder))
             else:
                 default = generators["default"].load()
                 examples.extend(default(extension, app, source_folder))
@@ -67,15 +70,11 @@ def generate_example_md(app: Sphinx) -> None:
 
 
 def ignore_example_files(app: Sphinx, config: SphinxConfig) -> None:
-    for name, values in app.config.sphinx_gooey_conf.items():
-        source_folder = Path(app.srcdir) / values["source"]
-        if not source_folder.is_dir():
-            raise ValueError(
-                f"Source folder for examples must exist: '{source_folder!s}'"
-            )
+    filetypes = {".py": "python", ".ipynb": "notebook", ".h": "cxx", ".cpp": "cxx"}
+    for values in config.sphinx_gooey_conf.values():
         for extension in values["file_ext"]:
-            for ff in source_folder.rglob(extension):
-                app.config.exclude_patterns.append(str(ff.relative_to(app.srcdir)))
+            app.add_source_suffix(extension, filetypes[extension], override=True)
+            app.add_source_parser(parsers[extension], override=True)
 
 
 def load_generator_entry_points(app: Sphinx) -> None:
@@ -83,6 +82,17 @@ def load_generator_entry_points(app: Sphinx) -> None:
     # sphinx_gooey_generators. We could define a type class just for this case but that
     # seems like overkill.
     app.env.sphinx_gooey_generators = entry_points(group="sphinx_gooey.generators")  # type: ignore # noqa: E501
+
+
+def add_fake_files(
+    app: Sphinx, env: None, added: None, changed: None, removed: None
+) -> list[str]:
+    logger.info("Added: %r\nChanged: %r\nRemoved: %r", added, changed, removed)
+    return ["docname-1"]
+
+
+def env_before_read_docs(app, env, docnames):
+    logger.warning("Docnames: %r", docnames)
 
 
 def setup(app: Sphinx) -> None:
@@ -108,5 +118,7 @@ def setup(app: Sphinx) -> None:
     # These are done when the builder is initialized so that the environment is created
     # and we can store the generators on the environment.
     app.connect("builder-inited", load_generator_entry_points, priority=501)
-    app.connect("builder-inited", generate_example_md, priority=502)
+    # app.connect("builder-inited", generate_example_md, priority=502)
+    app.connect("env-get-outdated", add_fake_files)
+    app.connect("env-before-read-docs", env_before_read_docs)
     logger.info("Set up sphinx_gooey!")

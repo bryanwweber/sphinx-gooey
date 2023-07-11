@@ -61,21 +61,21 @@ def md_generator(extension: str, app: Sphinx, source_folder: Path) -> list[Examp
         else:
             example = Example(ff, source_folder)  # type: ignore
         examples.append(example)
-        md_file = ff.with_suffix(".md")
-        md_file.write_text(
-            dedent(
-                f"""\
-                ---
-                orphan: true
-                ---
-                ({example.reference})=
-                # {example.name}
+        # md_file = ff.with_suffix(".md")
+        # md_file.write_text(
+        #     dedent(
+        #         f"""\
+        #         ---
+        #         orphan: true
+        #         ---
+        #         ({example.reference})=
+        #         # {example.name}
 
-                [**Source**]({ff.name})
+        #         [**Source**]({ff.name})
 
-                :::{{literalinclude}} {ff.name}
-                :::
-                """
-            )
-        )
+        #         :::{{literalinclude}} {ff.name}
+        #         :::
+        #         """
+        #     )
+        # )
     return examples

@@ -22,10 +22,7 @@ ONE_CARD = dedent(
 
 
 class ExampleGallery(SphinxDirective):
-    """Given an example language, generate MyST markdown for the index page
-    and each example page. Each example page has the code formatted with
-    Pygments, plus a download link for the actual file itself.
-    """
+    """Given an example config name, generate MyST markdown for the index page."""
 
     required_arguments = 1
     has_content = True

@@ -25,6 +25,9 @@ from sphinx.application import Sphinx
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.logging import getLogger
 
+
+from .default import Example
+
 logger = getLogger(__name__)
 
 
@@ -77,23 +80,9 @@ class JupyterExampleDirective(SphinxDirective):
 
 
 @dataclass
-class JupyterExample:
-    path: Path
-    source_folder: Path
-    name: str = ""
-    reference: str = ""
-    summary: str = ""
-    category: str = ""
-
+class JupyterExample(Example):
     def __post_init__(self) -> None:
-        has_subdir = len(self.path.relative_to(self.source_folder.parent).parts) > 2
-        if has_subdir:
-            self.reference = f"{self.path.parts[-2]}-{self.path.stem}"
-            self.category = self.path.parts[-2]
-        else:
-            self.reference = self.path.stem
-
-        self.reference = self.reference.replace("_", "-").replace(" ", "")
+        super().__post_init__()
         document = nbf.reads(self.path.read_text(), nbf.current_nbformat)
         summary: list[str] = []
         title: str = ""
