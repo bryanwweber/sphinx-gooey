@@ -25,7 +25,6 @@ from sphinx.application import Sphinx
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.logging import getLogger
 
-
 from .default import Example
 
 logger = getLogger(__name__)
@@ -35,7 +34,6 @@ class JupyterExampleDirective(SphinxDirective):
     required_arguments = 1
 
     def run(self) -> list[Node]:
-
         doc = new_document("", self.state.document.settings)
         # Two-element tuple, the first is the file relative to the srcdir, the second
         # is the absolute path to the file

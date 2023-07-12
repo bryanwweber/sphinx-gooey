@@ -3,6 +3,7 @@ from pathlib import Path
 
 from sphinx.application import Sphinx
 from sphinx.config import Config as SphinxConfig
+from sphinx.environment import Environment
 from sphinx.errors import ExtensionError
 from sphinx.util.logging import getLogger
 
@@ -74,7 +75,7 @@ def ignore_example_files(app: Sphinx, config: SphinxConfig) -> None:
     for values in config.sphinx_gooey_conf.values():
         for extension in values["file_ext"]:
             app.add_source_suffix(extension, filetypes[extension], override=True)
-            app.add_source_parser(parsers[extension], override=True)
+            # app.add_source_parser(parsers[extension], override=True)
 
 
 def load_generator_entry_points(app: Sphinx) -> None:
@@ -91,7 +92,7 @@ def add_fake_files(
     return ["docname-1"]
 
 
-def env_before_read_docs(app, env, docnames):
+def env_before_read_docs(app: Sphinx, env: Environment, docnames: list[str]) -> None:
     logger.warning("Docnames: %r", docnames)
 
 

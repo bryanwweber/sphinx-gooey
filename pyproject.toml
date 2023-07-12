@@ -2,28 +2,36 @@
 name = "sphinx-gooey"
 version = "0.1.0"
 description = "Produces a gallery of examples for Sphinx documentation. Totally language agnostic, include examples in any programming language in your documentation."
-authors = [
-    {name = "Bryan Weber", email = "bryan.w.weber@gmail.com"},
-]
-dependencies = [
-    "sphinx-design>=0.2.0",
-    "myst-parser>=0.18.0",
-]
+authors = [{ name = "Bryan Weber", email = "bryan.w.weber@gmail.com" }]
+dependencies = ["sphinx-design>=0.2.0", "myst-parser>=0.18.0"]
 requires-python = ">=3.9"
 readme = "README.md"
-license = {text = "BSD-3-Clause"}
+license = { text = "BSD-3-Clause" }
+
 [project.optional-dependencies]
-notebook = [
-    "myst-nb>=0.16.0",
-    "nbformat>=5.7.0",
-]
+notebook = ["myst-nb>=0.16.0", "nbformat>=5.7.0"]
+
 [project.entry-points."sphinx_gooey.generators"]
 default = "sphinx_gooey.default:md_generator"
 jupyter = "sphinx_gooey.jupyter:md_generator"
 python = "sphinx_gooey.default:md_generator"
 
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[tool.isort]
+profile = "black"
+
+[tool.mypy]
+check_untyped_defs = true
+disallow_untyped_defs = true
+
+[tool.ruff]
+target-version = "py311"
+
 [tool.pdm.scripts]
-doc = {cmd = [
+doc = { cmd = [
   "sphinx-build",
   "-b",
   "html",
@@ -32,8 +40,8 @@ doc = {cmd = [
   "doc",
   "doc/_build/html",
   "-a",
-]}
-livedoc = {cmd = [
+] }
+livedoc = { cmd = [
   "sphinx-autobuild",
   "doc",
   "doc/_build/html",
@@ -44,33 +52,21 @@ livedoc = {cmd = [
   "--port",
   "0",
   "--open-browser",
-]}
-
+] }
 
 [tool.pdm.dev-dependencies]
 doc = [
-    "sphinx>=5.0.2",
-    "sphinx-autobuild>=2021.3.14",
-    "myst-parser>=0.18.0",
-    "sphinx-design>=0.2.0",
-    "pydata-sphinx-theme>=0.9.0",
-    "myst-nb>=0.16.0",
+  "sphinx>=5.0.2",
+  "sphinx-autobuild>=2021.3.14",
+  "myst-parser>=0.18.0",
+  "sphinx-design>=0.2.0",
+  "pydata-sphinx-theme>=0.9.0",
+  "myst-nb>=0.16.0",
 ]
 dev = [
-    "mypy>=0.982",
-    "flake8>=5.0.4",
-    "black>=22.10.0",
-    "pre-commit>=2.20.0",
-    "isort>=5.10.1",
+  "mypy>=0.982",
+  "black>=22.10.0",
+  "pre-commit>=2.20.0",
+  "isort>=5.10.1",
+  "ruff>=0.0.277",
 ]
-
-[build-system]
-requires = ["pdm-pep517>=1.0.0"]
-build-backend = "pdm.pep517.api"
-
-[tool.isort]
-profile = "black"
-
-[tool.mypy]
-check_untyped_defs = true
-disallow_untyped_defs = true
