@@ -25,6 +25,8 @@ from sphinx.application import Sphinx
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.logging import getLogger
 
+from .default import Example
+
 logger = getLogger(__name__)
 
 
@@ -32,7 +34,6 @@ class JupyterExampleDirective(SphinxDirective):
     required_arguments = 1
 
     def run(self) -> list[Node]:
-
         doc = new_document("", self.state.document.settings)
         # Two-element tuple, the first is the file relative to the srcdir, the second
         # is the absolute path to the file
@@ -62,7 +63,7 @@ class JupyterExampleDirective(SphinxDirective):
         parser = cast(MystParser, app.registry.create_source_parser(app, "myst-nb"))
         parser.env = deepcopy(parser.env)
 
-        def doc2path(docname: str, *args, **kwargs):
+        def doc2path(docname: str, *args: tuple, **kwargs: dict) -> str:
             """Remove the .md suffix from the doc2path return value. It gets added
             automatically by the environment, but since we want to execute the actual
             ipynb file on disk, we need to strip it off.
@@ -77,23 +78,9 @@ class JupyterExampleDirective(SphinxDirective):
 
 
 @dataclass
-class JupyterExample:
-    path: Path
-    source_folder: Path
-    name: str = ""
-    reference: str = ""
-    summary: str = ""
-    category: str = ""
-
-    def __post_init__(self):
-        has_subdir = len(self.path.relative_to(self.source_folder.parent).parts) > 2
-        if has_subdir:
-            self.reference = f"{self.path.parts[-2]}-{self.path.stem}"
-            self.category = self.path.parts[-2]
-        else:
-            self.reference = self.path.stem
-
-        self.reference = self.reference.replace("_", "-").replace(" ", "")
+class JupyterExample(Example):
+    def __post_init__(self) -> None:
+        super().__post_init__()
         document = nbf.reads(self.path.read_text(), nbf.current_nbformat)
         summary: list[str] = []
         title: str = ""
@@ -122,7 +109,6 @@ def md_generator(ext: str, app: Sphinx, source_folder: Path) -> list[JupyterExam
                 "pathname which is not yet supported."
             )
             continue
-        app.config.exclude_patterns.append(str(pth))
         example = JupyterExample(ff, source_folder)
         examples.append(example)
         md_file = ff.with_suffix(".md")
@@ -133,7 +119,7 @@ def md_generator(ext: str, app: Sphinx, source_folder: Path) -> list[JupyterExam
                 orphan: true
                 ---
                 ({example.reference})=
-                # {example.name}
+                # {example.path.name}
 
                 :::{{jupyter-example}} {ff.name}
                 :::
