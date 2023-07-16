@@ -12,9 +12,8 @@ license = { text = "BSD-3-Clause" }
 notebook = ["myst-nb>=0.16.0", "nbformat>=5.7.0"]
 
 [project.entry-points."sphinx_gooey.generators"]
-default = "sphinx_gooey.default:md_generator"
 jupyter = "sphinx_gooey.jupyter:md_generator"
-python = "sphinx_gooey.default:md_generator"
+python = "sphinx_gooey.python:md_generator"
 
 [build-system]
 requires = ["pdm-backend"]
