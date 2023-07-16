@@ -36,7 +36,7 @@ release = "0.1.0"
 extensions = [
     # "myst_parser",
     # "sphinx_design",
-    "sphinx_gooey",
+    "sphinx_gooey.gooey",
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
 ]
@@ -46,9 +46,23 @@ myst_enable_extensions = [
 ]
 
 sphinx_gooey_conf = {
-    "python": {"source": "examples/python", "file_ext": ["*.py"]},
-    "jupyter": {"source": "examples/jupyter", "file_ext": ["*.ipynb"]},
-    "cxx": {"source": "examples/cxx", "file_ext": ["*.h", "*.cpp"]},
+    "sources": {
+        "python": {
+            "source": "../examples/python",
+            "file_ext": ["*.py"],
+            "target": "examples/python",
+        },
+        # "jupyter": {
+        #     "source": "../examples/jupyter",
+        #     "file_ext": ["*.ipynb"],
+        #     "target": "examples/jupyter",
+        # },
+        # "cxx": {
+        #     "source": "../examples/cxx",
+        #     "file_ext": ["*.h", "*.cpp"],
+        #     "target": "examples/cxx",
+        # },
+    }
 }
 
 nb_execution_mode = "off"
