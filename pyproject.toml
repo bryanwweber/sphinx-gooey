@@ -53,6 +53,7 @@ livedoc = { cmd = [
     "0",
     "--open-browser",
 ] }
+test = { cmd = ["pytest", "--cov=src/sphinx_gooey", "tests"] }
 
 [tool.pdm.dev-dependencies]
 doc = [
@@ -71,3 +72,4 @@ dev = [
     "ruff>=0.0.277",
 ]
 test = ["pytest>=7.4.0", "pytest-cov>=4.1.0"]
+mypy = ["types-docutils>=0.20.0.1"]
