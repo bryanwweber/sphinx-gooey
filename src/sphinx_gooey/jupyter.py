@@ -25,7 +25,7 @@ from sphinx.application import Sphinx
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.logging import getLogger
 
-from .default import Example
+from .python import Example
 
 logger = getLogger(__name__)
 
