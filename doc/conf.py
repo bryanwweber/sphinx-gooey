@@ -51,6 +51,7 @@ sphinx_gooey_conf = {
             "source": "../examples/python",
             "file_ext": ["*.py"],
             "target": "examples/python",
+            "categories": {"subfolder": "A subfolder title"},
         },
         # "jupyter": {
         #     "source": "../examples/jupyter",

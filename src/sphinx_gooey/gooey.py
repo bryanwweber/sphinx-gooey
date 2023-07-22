@@ -47,9 +47,8 @@ def generate_example_md(app: Sphinx) -> None:
                 f"Source folder for examples must exist: '{source_folder!s}'"
             )
         target_folder = (srcdir / values["target"]).resolve()
-        examples = []
         generator = generators[name].load()
-        examples.append(generator(source_folder, target_folder))
+        generator(source_folder, target_folder, values)
 
         # references = set(e.reference for e in examples)
         # if len(references) != len(examples):

@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from shutil import copy2
 from textwrap import dedent
+from typing import TypedDict
 
 from sphinx.util.logging import getLogger
 
@@ -59,13 +60,21 @@ ONE_CARD = dedent(
 )
 
 
-def md_generator(source_folder: Path, target_folder: Path) -> None:
+class Config(TypedDict):
+    categories: dict[str, str]
+
+
+def md_generator(source_folder: Path, target_folder: Path, config: Config) -> None:
     examples = file_generator(source_folder, target_folder)
 
-    category_block = "::::{{grid}} 3\n{content}\n::::"
+    category_block = "::::{{grid}} 1 1 3 3\n{content}\n::::\n"
     block_text = []
+    categories = config.get("categories", {})
     for category, these_examples in examples.items():
-        block_text.append(f"## {category}")
+        if category:
+            if category in categories:
+                category = categories[category]
+            block_text.append(f"## {category}\n")
         block_content = "\n".join(
             [
                 ONE_CARD.format(
@@ -78,12 +87,15 @@ def md_generator(source_folder: Path, target_folder: Path) -> None:
         )
         block_text.extend(category_block.format(content=block_content).splitlines())
 
-    copy2(source_folder.joinpath("index.md"), target_folder.joinpath("index.md"))
-    with target_folder.joinpath("index.md").open("a") as fp:
+    source_index = source_folder / "index.md"
+    target_index = target_folder / "index.md"
+    if source_index.is_file():
+        copy2(source_index, target_index)
+    else:
+        target_index.touch()
+    with target_index.open("a") as fp:
         fp.write("\n")
         fp.write("\n".join(block_text))
-
-    # return examples
 
 
 def file_generator(
