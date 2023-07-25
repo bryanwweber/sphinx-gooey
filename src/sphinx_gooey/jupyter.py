@@ -81,7 +81,7 @@ class JupyterExampleDirective(SphinxDirective):
 class JupyterExample(Example):
     def __post_init__(self) -> None:
         super().__post_init__()
-        document = nbf.reads(self.path.read_text(), nbf.current_nbformat)
+        document = nbf.reads(self.source_path.read_text(), nbf.current_nbformat)
         summary: list[str] = []
         title: str = ""
         for cell in document.cells:
@@ -109,9 +109,9 @@ def md_generator(ext: str, app: Sphinx, source_folder: Path) -> list[JupyterExam
                 "pathname which is not yet supported."
             )
             continue
-        example = JupyterExample(ff, source_folder)
-        examples.append(example)
         md_file = ff.with_suffix(".md")
+        example = JupyterExample(ff, source_folder, md_file)
+        examples.append(example)
         md_file.write_text(
             dedent(
                 f"""\
@@ -119,7 +119,7 @@ def md_generator(ext: str, app: Sphinx, source_folder: Path) -> list[JupyterExam
                 orphan: true
                 ---
                 ({example.reference})=
-                # {example.path.name}
+                # {example.source_path.name}
 
                 :::{{jupyter-example}} {ff.name}
                 :::

@@ -13,21 +13,24 @@ logger = getLogger(__name__)
 
 @dataclass
 class Example:
-    path: Path
+    source_path: Path
     source_folder: Path
+    target_path: Path
     name: str = ""
     reference: str = ""
     summary: str = ""
     category: str = ""
 
     def __post_init__(self) -> None:
-        self.name = self.path.name
-        has_subdir = len(self.path.relative_to(self.source_folder.parent).parts) > 2
+        self.name = self.source_path.name
+        has_subdir = (
+            len(self.source_path.relative_to(self.source_folder.parent).parts) > 2
+        )
         if has_subdir:
-            self.reference = f"{self.path.parts[-2]}-{self.path.stem}"
-            self.category = self.path.parts[-2]
+            self.reference = f"{self.source_path.parts[-2]}-{self.source_path.stem}"
+            self.category = self.source_path.parts[-2]
         else:
-            self.reference = self.path.stem
+            self.reference = self.source_path.stem
 
         self.reference = self.reference.replace("_", "-").replace(" ", "")
 
@@ -37,7 +40,7 @@ class PythonExample(Example):
     def __post_init__(self) -> None:
         super().__post_init__()
 
-        mod = ast.parse(self.path.read_bytes())
+        mod = ast.parse(self.source_path.read_bytes())
         doc = ""
         for node in mod.body:
             if isinstance(node, ast.Expr) and isinstance(node.value, ast.Str):
@@ -111,10 +114,11 @@ def file_generator(
                 ff,
             )
             continue
-        example = PythonExample(ff, source_folder)
-        examples[example.category].append(example)
         example_file = ff.relative_to(source_folder)
         target_file = (target_folder / example_file).with_suffix(".md")
+        target_file.parent.mkdir(exist_ok=True, parents=True)
+        example = PythonExample(ff, source_folder, target_file)
+        examples[example.category].append(example)
         copy2(ff, target_file.parent)
 
         target_file.write_text(
