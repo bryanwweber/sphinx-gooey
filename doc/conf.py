@@ -44,6 +44,8 @@ extensions = [
 myst_enable_extensions = [
     "colon_fence",
 ]
+myst_heading_anchors = 3
+
 
 sphinx_gooey_conf = {
     "sources": {
@@ -53,11 +55,11 @@ sphinx_gooey_conf = {
             "target": "examples/python",
             "categories": {"subfolder": "A subfolder title"},
         },
-        # "jupyter": {
-        #     "source": "../examples/jupyter",
-        #     "file_ext": ["*.ipynb"],
-        #     "target": "examples/jupyter",
-        # },
+        "jupyter": {
+            "source": "../examples/jupyter",
+            "file_ext": ["*.ipynb"],
+            "target": "examples/jupyter",
+        },
         # "cxx": {
         #     "source": "../examples/cxx",
         #     "file_ext": ["*.h", "*.cpp"],

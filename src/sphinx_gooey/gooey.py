@@ -10,29 +10,7 @@ logger = getLogger(__name__)
 
 
 def generate_example_md(app: Sphinx) -> None:
-    """
-    The extension configuration needs to list the source files folder and file
-    extensions. This function will generate ``<filename>.md`` files for each example
-    file that is found in a recursive search of the source folder. This may use a
-    custom template for each example.
-
-    To use the extension, the user creates an ``index.md`` file that uses the
-    ``examples-gallery`` directive somewhere in the file. That directive takes one
-    required argument, which is a ``name`` of the set of examples. The ``name`` must be
-    configured in the ``conf.py`` file along with the source folder and file
-    extensions.
-
-    The usage would look like:
-
-    .. code-block:: markdown
-
-       :::{example-gallery} python
-       :::
-
-    The directive is replaced by a set of cards linking to the rendered source code of
-    the example and each card contains the description of the example. The gallery is
-    automatically subdivided by subfolder in the source location.
-    """
+    """ """
 
     generators = app.config.sphinx_gooey_conf.get("generators")
     if generators is None:
@@ -50,15 +28,6 @@ def generate_example_md(app: Sphinx) -> None:
         generator = generators[name].load()
         generator(source_folder, target_folder, values)
 
-        # references = set(e.reference for e in examples)
-        # if len(references) != len(examples):
-        #     logger.error(
-        #         "There are duplicate path names in the set of examples: %r", examples
-        #     )
-        #     sys.exit(1)
-
-        # app.config.sphinx_gooey_conf[name]["examples"] = examples
-
 
 def load_generator_entry_points(app: Sphinx, config: SphinxConfig) -> None:
     config.sphinx_gooey_conf["generators"] = entry_points(
@@ -70,7 +39,9 @@ def setup(app: Sphinx) -> dict[str, bool | str]:
     """Install the extension into the Sphinx ``app``."""
     # If myst_nb is set up after myst_parser there are conflicts about common
     # configuration options and directives. So we can't set up myst_nb only when
-    # the Jupyter stuff is loaded, it has to come here.
+    # the Jupyter stuff is loaded, it has to come here. Note that we required
+    # myst_parser so there's no sense in making this conditional LBYL, doing
+    # the EAFP way is more correct.
     try:
         app.setup_extension("myst_nb")
     except ExtensionError:
@@ -84,8 +55,6 @@ def setup(app: Sphinx) -> dict[str, bool | str]:
     # sphinx-gallery creates the reST files for examples and the index using a
     # builder-inited event
 
-    # The priority of loading the generators has to be lower than generating the
-    # Markdown so that loading is run first.
     logger.info("Set up sphinx_gooey!")
     return {
         "parallel_read_safe": True,

@@ -6,4 +6,5 @@ These are just links to the generated index pages, added here manually.
 :maxdepth: 1
 
 python/index
+jupyter/index
 :::
