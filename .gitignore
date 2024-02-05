@@ -1,5 +1,7 @@
 # Generated example inclusion files
 doc/examples/**/*.md
+doc/examples/**/*.py
+doc/examples/**/*.ipynb
 
 .python-version
 .vscode
@@ -148,6 +150,7 @@ venv.bak/
 .mypy_cache/
 .dmypy.json
 dmypy.json
+out/*
 
 # Pyre type checker
 .pyre/
